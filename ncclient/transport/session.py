@@ -77,7 +77,13 @@ class Session(Thread):
             init_event.set()
         listener = HelloHandler(ok_cb, err_cb)
         self.add_listener(listener)
-        self.send(HelloHandler.build(self._client_capabilities))
+        caps = """<?xml version="1.0" encoding="UTF-8"?>
+<hello xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+<capabilities>
+  <capability>urn:ietf:params:netconf:base:1.0</capability>
+</capabilities>
+  </hello>]]>]]>"""
+        self.send(caps) #todo build()
         logger.debug('starting main loop')
         self.start()
         # we expect server's hello message
