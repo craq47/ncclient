@@ -42,7 +42,7 @@ class EditConfig(RPC):
 
         The `"rollback-on-error"` *error_option* depends on the `:rollback-on-error` capability.
         """
-        node = new_ele("nc:edit-config")
+        node = new_ele("edit-config")
         node.append(util.datastore_or_url("target", target, self._assert))
         if error_option is not None:
             if error_option == "rollback-on-error":
@@ -67,7 +67,7 @@ class DeleteConfig(RPC):
         *target* specifies the  name or URL of configuration datastore to delete
 
         :seealso: :ref:`srctarget_params`"""
-        node = new_ele("nc:delete-config")
+        node = new_ele("delete-config")
         node.append(util.datastore_or_url("target", target, self._assert))
         return self._request(node)
 
@@ -84,7 +84,7 @@ class CopyConfig(RPC):
         *target* is the name of the configuration datastore to use as the destination of the copy operation
 
         :seealso: :ref:`srctarget_params`"""
-        node = new_ele("nc:copy-config")
+        node = new_ele("copy-config")
         node.append(util.datastore_or_url("target", target, self._assert))
         node.append(util.datastore_or_url("source", source, self._assert))
         return self._request(node)

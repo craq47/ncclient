@@ -77,13 +77,7 @@ class Session(Thread):
             init_event.set()
         listener = HelloHandler(ok_cb, err_cb)
         self.add_listener(listener)
-        caps = """<?xml version="1.0" encoding="UTF-8"?>
-<hello xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
-<capabilities>
-  <capability>urn:ietf:params:netconf:base:1.0</capability>
-</capabilities>
-  </hello>]]>]]>"""
-        self.send(caps) #todo build()
+        self.send(HelloHandler.build(self._client_capabilities))
         logger.debug('starting main loop')
         self.start()
         # we expect server's hello message
@@ -214,9 +208,9 @@ class HelloHandler(SessionListener):
     @staticmethod
     def build(capabilities):
         "Given a list of capability URI's returns <hello> message XML string"
-        hello = new_ele("hello")
-        caps = sub_ele(hello, "capabilities")
-        def fun(uri): sub_ele(caps, "capability").text = uri
+        hello = ET.Element("hello", {"xmlns": "urn:ietf:params:xml:ns:netconf:base:1.0"})
+        caps = ET.SubElement(hello, "capabilities")
+        def fun(uri): ET.SubElement(caps, "capability").text = uri
         map(fun, capabilities)
         return to_xml(hello)
 
