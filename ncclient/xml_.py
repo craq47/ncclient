@@ -23,7 +23,9 @@ from xml.etree import cElementTree as ET
 
 from ncclient import NCClientError
 
+
 class XMLError(NCClientError): pass
+
 
 ### Namespace-related
 
@@ -39,7 +41,8 @@ CISCO_CPI_1_0 = "http://www.cisco.com/cpi_10/schema"
 FLOWMON_1_0 = "http://www.liberouter.org/ns/netopeer/flowmon/1.0"
 #: Namespace for Juniper 9.6R4. Tested with Junos 9.6R4+
 JUNIPER_1_1 = "http://xml.juniper.net/xnm/1.1/xnm"
-#
+#: Namespace for Brocade
+BROCADE = "http://brocade.com/ns/netconf/config/netiron-config/"
 try:
     register_namespace = ET.register_namespace
 except AttributeError:
@@ -56,20 +59,24 @@ for (ns, pre) in {
     CISCO_CPI_1_0: 'cpi',
     FLOWMON_1_0: 'fm',
     JUNIPER_1_1: 'junos',
-}.items(): 
+    BROCADE: 'brcd',
+}.items():
     register_namespace(pre, ns)
 
 qualify = lambda tag, ns=BASE_NS_1_0: tag if ns is None else "{%s}%s" % (ns, tag)
 """Qualify a *tag* name with a *namespace*, in :mod:`~xml.etree.ElementTree` fashion i.e. *{namespace}tagname*."""
+
 
 def to_xml(ele, encoding="UTF-8"):
     "Convert and return the XML for an *ele* (:class:`~xml.etree.ElementTree.Element`) with specified *encoding*."
     xml = ET.tostring(ele, encoding)
     return xml if xml.startswith('<?xml') else '<?xml version="1.0" encoding="%s"?>%s' % (encoding, xml)
 
+
 def to_ele(x):
     "Convert and return the :class:`~xml.etree.ElementTree.Element` for the XML document *x*. If *x* is already an :class:`~xml.etree.ElementTree.Element` simply returns that."
     return x if ET.iselement(x) else ET.fromstring(x)
+
 
 def parse_root(raw):
     "Efficiently parses the root element of a *raw* XML document, returning a tuple of its qualified name and attribute dictionary."
@@ -77,9 +84,10 @@ def parse_root(raw):
     for event, element in ET.iterparse(fp, events=('start',)):
         return (element.tag, element.attrib)
 
+
 def validated_element(x, tags=None, attrs=None):
     """Checks if the root element of an XML document or Element meets the supplied criteria.
-    
+
     *tags* if specified is either a single allowable tag name or sequence of allowable alternatives
 
     *attrs* if specified is a sequence of required attributes, each of which may be a sequence of several allowable alternatives
@@ -101,6 +109,7 @@ def validated_element(x, tags=None, attrs=None):
             else:
                 raise XMLError("Element [%s] does not have required attributes" % ele.tag)
     return ele
+
 
 new_ele = lambda tag, attrs={}, **extra: ET.Element(qualify(tag), attrs, **extra)
 
